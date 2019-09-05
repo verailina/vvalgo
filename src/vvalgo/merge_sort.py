@@ -44,8 +44,11 @@ def merge_sort(array: Sequence[int]) -> Sequence[int]:
     Returns:
         Sequence[int]: Sorted array.
     """
-    if len(array) == 1:
+    if len(array) <= 1:
         return array
 
     middle = len(array) // 2
+    left = merge_sort(array[:middle])
+    right = merge_sort(array[middle:])
+    return merge(left, right)
 
