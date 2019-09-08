@@ -1,5 +1,5 @@
 """Test for merge sort algorithms."""
-from vvalgo.merge_sort import merge, merge_sort
+from vvalgo.merge_sort import merge, merge_sort, merge_count, SortedArray
 
 
 def test_merge():
@@ -21,3 +21,26 @@ def test_merge_sort():
     assert merge_sort([2, 1]) == [1, 2]
     assert merge_sort([4, 3, 2, 1, 0]) == [0, 1, 2, 3, 4]
     assert merge_sort([1, 2, 1, 2, 3, -1]) == [-1, 1, 1, 2, 2, 3]
+
+
+def test_merge_count():
+    """Test merge sort and inversion count algorithm."""
+    assert (merge_count(SortedArray([], 0), SortedArray([], 0)) ==
+            SortedArray([], 0))
+    assert (merge_count(SortedArray([1], 0), SortedArray([2], 0)) ==
+            SortedArray([1, 2], 0))
+    assert (merge_count(SortedArray([2], 0), SortedArray([1], 0)) ==
+            SortedArray([1, 2], 1))
+    assert (merge_count(SortedArray([2], 0), SortedArray([0, 1], 1)) ==
+            SortedArray([0, 1, 2], 3))
+    assert (merge_count(SortedArray([2, 5, 7], 0),
+                        SortedArray([1, 3, 4, 6, 8], 0)) ==
+            SortedArray([1, 2, 3, 4, 5, 6, 7, 8], 8))
+
+    assert (merge_count(SortedArray([2, 5, 7], 0),
+                        SortedArray([1], 0)) ==
+            SortedArray([1, 2, 5, 7], 3))
+
+    assert (merge_count(SortedArray([2, 5, 7], 0),
+                        SortedArray([1, 4], 0)) ==
+            SortedArray([1, 2, 4, 5, 7], 5))
