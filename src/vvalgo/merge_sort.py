@@ -101,5 +101,13 @@ def merge_count(left: SortedArray,
     return SortedArray(result_array, n_inversions)
 
 
-def merge_sort_count(array: Sequence[int]) -> Sequence[int]:
+def merge_sort_count(array: Sequence[int]) -> SortedArray:
     """Count number of inversions in the input array and sort it."""
+    if len(array) <= 1:
+        return SortedArray(array, 0)
+
+    middle = len(array) // 2
+    left = merge_sort_count(array[:middle])
+    right = merge_sort_count(array[middle:])
+    return merge_count(left, right)
+
