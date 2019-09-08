@@ -1,4 +1,6 @@
 """Test for merge sort algorithms."""
+import pytest
+
 from vvalgo.merge_sort import (merge, merge_sort, merge_count, SortedArray,
                                merge_sort_count)
 
@@ -57,3 +59,15 @@ def test_merge_sort_count():
     assert merge_sort_count([1, 2, 3, 4]) == SortedArray([1, 2, 3, 4], 0)
     assert merge_sort_count([1, 3, 2, 5, 4, 0]) == SortedArray(
         [0, 1, 2, 3, 4, 5], 7)
+    assert (merge_sort_count([37, 7, 2, 14, 35, 47, 10, 24, 44, 17, 34, 11, 16,
+                              48, 1, 39, 6, 33, 43, 26, 40, 4, 28, 5, 38, 41, 42,
+                              12, 13, 21, 29, 18, 3, 19, 0, 32, 46, 27, 31, 25,
+                              15, 36, 20, 8, 9, 49, 22, 23, 30, 45]
+                             ).n_inversions == 590)
+
+
+def test_merge_sort_count_big(resources_path):
+    """Test the function `merge_sort_count` on a big example."""
+    with (resources_path / "merge_count_sample.txt").open("r") as input_file:
+        array = [int(line) for line in input_file.readlines()]
+        assert merge_sort_count(array).n_inversions == 2407905288
