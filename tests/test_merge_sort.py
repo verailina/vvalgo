@@ -49,6 +49,32 @@ def test_merge_count():
             SortedArray([1, 2, 4, 5, 7], 5))
 
 
+def test_merge_count_with_duplicates():
+    """Test the function `merge_sort_count` for the case when the input array
+    contains duplicated items.
+    """
+    assert (merge_count(SortedArray([1, 1], 0), SortedArray([2], 0)) ==
+            SortedArray([1, 1, 2], 0))
+    assert (merge_count(SortedArray([1, 1], 0), SortedArray([0], 0)) ==
+            SortedArray([0, 1, 1], 2))
+    assert (merge_count(SortedArray([1, 2], 0), SortedArray([0, 0], 0)) ==
+            SortedArray([0, 0, 1, 2], 4))
+    assert (merge_count(SortedArray([1, 2], 0), SortedArray([3, 3], 0)) ==
+            SortedArray([1, 2, 3, 3], 0))
+    assert (merge_count(SortedArray([1, 3], 0), SortedArray([2, 2], 0)) ==
+            SortedArray([1, 2, 2, 3], 2))
+    assert (merge_count(SortedArray([1, 1, 3, 3], 0),
+                        SortedArray([2, 2, 5, 5], 0)) ==
+            SortedArray([1, 1, 2, 2, 3, 3, 5, 5], 4))
+    assert (merge_count(SortedArray([1, 2, 3], 0),
+                        SortedArray([0, 1, 2], 0)) ==
+            SortedArray([0, 1, 1, 2, 2, 3], 6))
+
+    assert (merge_count(SortedArray([1, 2, 2], 0),
+                        SortedArray([2, 3], 0)) ==
+            SortedArray([1, 2, 2, 2, 3], 0))
+
+
 def test_merge_sort_count():
     """Test `merge_sort_count` function."""
     assert merge_sort_count([]) == SortedArray([], 0)
@@ -64,6 +90,19 @@ def test_merge_sort_count():
                               12, 13, 21, 29, 18, 3, 19, 0, 32, 46, 27, 31, 25,
                               15, 36, 20, 8, 9, 49, 22, 23, 30, 45]
                              ).n_inversions == 590)
+
+
+def test_merge_sort_count_with_duplicates():
+    """Test the function `merge_sort_count` in the case when the input array
+    contains duplicated items.
+    """
+    assert merge_sort_count([1, 1]) == SortedArray([1, 1], 0)
+    assert merge_sort_count([1, 2, 1]) == SortedArray([1, 1, 2], 1)
+    assert merge_sort_count([1, 5, 2, 3, 5, 6]) == SortedArray(
+        [1, 2, 3, 5, 5, 6], 2)
+    assert merge_sort_count([5, 1, 2, 3, 5]) == SortedArray(
+        [1, 2, 3, 5, 5], 3)
+
 
 
 def test_merge_sort_count_big(resources_path):
