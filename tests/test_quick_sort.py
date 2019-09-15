@@ -128,3 +128,45 @@ def test_quick_sort_median():
     array = [1, 2, 3, 4]
     assert quick_sort(array, pivot_type=PivotType.Median) == 4
     assert array == [1, 2, 3, 4]
+
+
+def test_quick_sort_big_first(resources_path):
+    """Tst the function `quick_sort` on a big example for the case when quick
+    sort uses the first element of the array as the pivot.
+    """
+    with (resources_path / "quick_sort_sample.txt").open("r") as input_file:
+        array = [int(line) for line in input_file.readlines()]
+    with (resources_path / "quick_sort_sample.txt").open("r") as input_file:
+        array_2 = [int(line) for line in input_file.readlines()]
+
+    comp_count = quick_sort(array)
+    assert array == sorted(array_2)
+    print(f"Number of comparisons: {comp_count}")
+
+
+def test_quick_sort_big_last(resources_path):
+    """Tst the function `quick_sort` on a big example for the case when quick
+    sort uses the last element of the array as the pivot.
+    """
+    with (resources_path / "quick_sort_sample.txt").open("r") as input_file:
+        array = [int(line) for line in input_file.readlines()]
+    with (resources_path / "quick_sort_sample.txt").open("r") as input_file:
+        array_2 = [int(line) for line in input_file.readlines()]
+
+    comp_count = quick_sort(array, pivot_type=PivotType.Last)
+    assert array == sorted(array_2)
+    print(f"Number of comparisons: {comp_count}")
+
+
+def test_quick_sort_big_median(resources_path):
+    """Tst the function `quick_sort` on a big example for the case when quick
+    sort uses the median element of the array as the pivot.
+    """
+    with (resources_path / "quick_sort_sample.txt").open("r") as input_file:
+        array = [int(line) for line in input_file.readlines()]
+    with (resources_path / "quick_sort_sample.txt").open("r") as input_file:
+        array_2 = [int(line) for line in input_file.readlines()]
+
+    comp_count = quick_sort(array, pivot_type=PivotType.Median)
+    assert array == sorted(array_2)
+    print(f"Number of comparisons: {comp_count}")

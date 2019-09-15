@@ -104,7 +104,6 @@ def test_merge_sort_count_with_duplicates():
         [1, 2, 3, 5, 5], 3)
 
 
-
 def test_merge_sort_count_big(resources_path):
     """Test the function `merge_sort_count` on a big example."""
     with (resources_path / "merge_count_sample.txt").open("r") as input_file:
