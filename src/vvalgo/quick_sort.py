@@ -4,7 +4,7 @@ from typing import Sequence, Optional
 
 def partition(array: Sequence[int],
               left: int = 0,
-              right: Optional[int] = None) -> Sequence[int]:
+              right: Optional[int] = None) -> int:
     """Make partition for quick sort algorithm.
 
     Args:
@@ -13,10 +13,10 @@ def partition(array: Sequence[int],
         right (int or None, optional, default None): Right array bound.
 
     Returns:
-        Sequence[int]: Partitioned array.
+        int: Index of pivot element in partitioned array.
     """
     if len(array) <= 1:
-        return array
+        return 0
     if right is None:
         right = len(array) - 1
 
@@ -33,7 +33,27 @@ def partition(array: Sequence[int],
             i += 1
         j += 1
     array[left], array[i - 1] = array[i - 1], array[left]
-    return array
+    return i - 1
 
-def quick_sort(array: Sequence[int]) -> Sequence[int]:
-    pass
+
+def quick_sort(array: Sequence[int],
+               left: int = 0,
+               right: Optional[int] = None) -> None:
+    """Quick sort algorithm for sorting an array of integers.
+
+    Args:
+        array (Sequence[int]): Input array to sort.
+        left (int, optional, default 0): Left array bound.
+        right (int or None, optional, default None): Right array bound.
+    """
+    if len(array) <= 1:
+        return
+
+    if right is None:
+        right = len(array) - 1
+
+    pivot_pos = partition(array, left, right)
+    if pivot_pos - 1 > left:
+        quick_sort(array, left, pivot_pos - 1)
+    if pivot_pos + 1 < right:
+        quick_sort(array, pivot_pos + 1, right)
