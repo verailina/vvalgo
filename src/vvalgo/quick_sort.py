@@ -38,22 +38,29 @@ def partition(array: Sequence[int],
 
 def quick_sort(array: Sequence[int],
                left: int = 0,
-               right: Optional[int] = None) -> None:
+               right: Optional[int] = None) -> int:
     """Quick sort algorithm for sorting an array of integers.
 
     Args:
         array (Sequence[int]): Input array to sort.
         left (int, optional, default 0): Left array bound.
         right (int or None, optional, default None): Right array bound.
+
+    Returns:
+        int: Number of comparisons made by all recursive calls.
     """
     if len(array) <= 1:
-        return
+        return 0
 
     if right is None:
         right = len(array) - 1
 
+    n_comparisons = (right - left + 1) - 1
     pivot_pos = partition(array, left, right)
     if pivot_pos - 1 > left:
-        quick_sort(array, left, pivot_pos - 1)
+        n_comparisons += quick_sort(array, left, pivot_pos - 1)
     if pivot_pos + 1 < right:
-        quick_sort(array, pivot_pos + 1, right)
+        n_comparisons += quick_sort(array, pivot_pos + 1, right)
+
+    return n_comparisons
+
