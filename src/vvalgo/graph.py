@@ -1,6 +1,6 @@
+"""Implementation of graph represented by an adjacency list."""
 from typing import Dict, Set
 from pathlib import Path
-from collections import defaultdict
 
 
 class Graph:
