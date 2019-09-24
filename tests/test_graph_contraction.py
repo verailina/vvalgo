@@ -1,7 +1,5 @@
 import random
 
-import pytest
-
 from vvalgo.graph import Graph
 from vvalgo.graph_contraction import (random_contraction_algorithm,
                                       find_min_cut)
@@ -23,6 +21,7 @@ def test_random_contraction_algorithm():
 
 
 def test_find_min_cut():
+    """Test minimal cut search."""
     random.seed(123)
     graph = Graph({1: {2, 4}, 2: {1, 3, 4}, 3: {2, 4}, 4: {1, 2, 3}})
     assert find_min_cut(graph)[1] == 2
@@ -37,3 +36,8 @@ def test_find_min_cut():
     assert find_min_cut(graph)[-1] == 2
 
 
+def test_find_min_cut_big(resources_path):
+    """Test minimal cut search for a big graph."""
+    graph = Graph.from_file((resources_path / "graph_contraction_sample.txt"))
+    res = find_min_cut(graph, 1000)
+    assert res[-1] == 17
