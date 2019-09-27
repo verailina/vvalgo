@@ -1,80 +1,75 @@
 """This module contains implementation of Kosaraju's algorithm for computing
 graph's strongly connected components.
 """
-from typing import Optional, Dict, Set
-from dataclasses import dataclass, field
+from typing import Optional, List
 from collections import Counter, deque
 
 from vvalgo.graph import Graph
 
 
-@dataclass()
 class SCCState:
-    time: int = 0
-    current_leader: Optional[int] = None
-    leaders: Dict[int, int] = field(default_factory=dict)
-    marks: Dict[int, int] = field(default_factory=dict)
-    explored: Set[int] = field(default_factory=set)
+
+    def __init__(self, max_vertex: int):
+        self.time = 0
+        self.current_leader = None
+        self.leaders = [None for _ in range(max_vertex + 1)]
+        self.marks = [None for _ in range(max_vertex + 1)]
+        self.explored = [False for _ in range(max_vertex + 1)]
+        self.visited = [False for _ in range(max_vertex + 1)]
 
 
 def dfs_loop(graph: Graph,
              state: SCCState,
-             marks: Optional[Dict[int, int]] = None):
-    mark_to_vertex = ({j: i for i, j in marks.items()}
-                      if marks is not None else None)
-    for i in range(graph.max_vertex, 0, -1):
-        if i not in state.explored:
+             marks: List[Optional[int]]):
+    mark_to_vertex = [None for _ in range(graph.max_vertex + 1)]
+    for i, mark in enumerate(marks):
+        if mark is not None:
+            mark_to_vertex[mark] = i
+
+    for i in range(graph.max_vertex, -1, -1):
+        if not state.explored[i]:
             state.current_leader = i
             dfs(i, graph, state, marks, mark_to_vertex)
-    return marks
 
 
 def dfs(vertex_mark: int,
         graph: Graph,
         state: SCCState,
-        vertex_to_mark: Optional[Dict[int, int]] = None,
-        mark_to_vertex: Optional[Dict[int, int]] = None):
-    if vertex_to_mark is None:
-        vertex_to_mark = {}
-    if mark_to_vertex is None:
-        mark_to_vertex = {}
+        vertex_to_mark: List[int],
+        mark_to_vertex: List[int]):
     to_explore = deque([vertex_mark])
+    state.visited[vertex_mark] = True
 
     while len(to_explore) > 0:
         vertex_mark = to_explore[0]
-        actual_vertex = mark_to_vertex.get(vertex_mark, vertex_mark)
+        actual_vertex = mark_to_vertex[vertex_mark]
 
-        if vertex_mark in state.explored:
-            state.leaders[vertex_mark] = state.current_leader
+        if state.explored[vertex_mark]:
+            state.leaders[actual_vertex] = state.current_leader
             to_explore.popleft()
+            state.marks[actual_vertex] = state.time
             state.time += 1
-            state.marks[vertex_mark] = state.time
 
         else:
+            state.explored[vertex_mark] = True
             for actual_end in graph.adj_list.get(actual_vertex, []):
-                end_mark = vertex_to_mark.get(actual_end, actual_end)
-                if end_mark not in state.explored:
+                end_mark = vertex_to_mark[actual_end]
+                if not state.visited[end_mark]:
                     to_explore.appendleft(end_mark)
+                    state.visited[end_mark] = True
 
-            state.explored.add(vertex_mark)
 
-
-def compute_scc(graph: Graph) -> Dict[int, int]:
-    reversed_state = SCCState()
-    dfs_loop(graph.reverse(), reversed_state)
-    state = SCCState()
+def compute_scc(graph: Graph) -> List[Optional[int]]:
+    reversed_state = SCCState(graph.max_vertex)
+    dfs_loop(graph.reverse(), reversed_state, list(range(graph.max_vertex + 1)))
+    state = SCCState(graph.max_vertex)
     dfs_loop(graph, state, marks=reversed_state.marks)
     return state.leaders
 
 
-def compute_sizes(leaders: Dict[int, int]):
-    counter = Counter(leaders.values())
-    # from collections import defaultdict
-    # results = defaultdict(set)
-    # for v, s in leaders.items():
-    #     results[s].add(v)
-    # print(results)
-    # for v, ss in sorted(results.items(), key=lambda x: len(x[1]), reverse=True):
-    #     print(v, len(ss))
+def compute_sizes(leaders: List):
+    counter = Counter(leaders[1:])
+    if None in counter:
+        del counter[None]
     return sorted(counter.values(), reverse=True)
 

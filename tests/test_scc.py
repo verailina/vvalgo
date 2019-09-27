@@ -1,7 +1,7 @@
+from pathlib import Path
 import pytest
 
-from vvalgo.scc import (Graph, dfs, dfs_loop, SCCState, compute_scc,
-                        compute_sizes)
+from vvalgo.scc import Graph, compute_scc, compute_sizes
 
 
 @pytest.fixture()
@@ -12,49 +12,41 @@ def small_graph(resources_path) -> Graph:
     return graph
 
 
-def test_dfs(small_graph):
-    """Test dfs algorithm."""
-    state = SCCState()
-    state.time = 1
-    state.current_leader = 0
-    dfs(0, Graph({0: {1}}), state)
-    assert state.time == 3
-    assert state.current_leader == 0
-    assert state.marks[1] == 2
-    assert state.marks[0] == 3
-
-    state = SCCState()
-    dfs(9, small_graph.reverse(), state)
-    assert state.time == 6
-    assert state.marks == {2: 2, 3: 4, 5: 1, 6: 5, 8: 3, 9: 6}
-
-
-def test_dfs_loop(small_graph):
-    """Test the function `dfs_loop`"""
-    reversed_state = SCCState()
-    dfs_loop(small_graph.reverse(), reversed_state)
-    assert reversed_state.time == 9
-    assert reversed_state.marks == {5: 1, 2: 2, 8: 3, 3: 4, 6: 5, 9: 6, 1: 7,
-                                    4: 8, 7: 9}
-    print(reversed_state.leaders)
-
-
 def test_compute_scc(resources_path):
     test_input = resources_path / "scc_small.txt"
     graph = Graph.from_file(test_input)
     scc = compute_scc(graph)
-    assert scc == {7: 9, 1: 9, 4: 9, 9: 6, 3: 6, 6: 6, 8: 3, 5: 3, 2: 3}
     sizes = compute_sizes(scc)
-    print(sizes)
+    assert sizes == [3, 3, 3]
 
 
 def test_compute_scc_big_sample(resources_path):
     """Test scc on a big sample data."""
-    test_input = resources_path / "scc_1.txt"
+    test_input = resources_path / "scc_sample.txt"
     graph = Graph.from_file(test_input)
     scc = compute_scc(graph)
     size = compute_sizes(scc)
+    assert size[:5] == [434821, 968, 459, 313, 211]
 
-    print(size)
-#1: 104592,89,64,61,54
-#2: 600516,319,191,178,177
+
+def test_standford():
+    tst_dir = Path("D:/repos/stanford-algs/testCases/course2/assignment1SCC")
+    total, fail = 0, 0
+    for item in tst_dir.iterdir():
+        if item.name.startswith("input"):
+            output_path = Path(str(item).replace("input", "output"))
+            graph = Graph.from_file(item)
+            scc = compute_scc(graph)
+            result_sizes = ",".join(map(str, (compute_sizes(scc, graph) +
+                                              [0 for i in range(5)])[:5]))
+            expected_sizes = output_path.read_text().strip()
+
+            if result_sizes != expected_sizes:
+                print(item.name)
+                print("Mine: ", result_sizes)
+                print("Expected: ", expected_sizes)
+                print("------")
+                fail += 1
+            total += 1
+
+    print(f"fail / total: {fail}/{total}")
