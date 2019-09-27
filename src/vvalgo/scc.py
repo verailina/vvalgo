@@ -1,103 +1,80 @@
 """This module contains implementation of Kosaraju's algorithm for computing
 graph's strongly connected components.
 """
-from typing import Optional, Sequence, Tuple, Dict
-from dataclasses import dataclass
-from collections import defaultdict
-from pathlib import Path
+from typing import Optional, Dict, Set
+from dataclasses import dataclass, field
+from collections import Counter, deque
+
+from vvalgo.graph import Graph
 
 
 @dataclass()
-class Edge:
-    start: int
-    end: int
+class SCCState:
+    time: int = 0
+    current_leader: Optional[int] = None
+    leaders: Dict[int, int] = field(default_factory=dict)
+    marks: Dict[int, int] = field(default_factory=dict)
+    explored: Set[int] = field(default_factory=set)
 
-    def __post_init__(self):
-        self.start -= 1
-        self.end -= 1
+
+def dfs_loop(graph: Graph,
+             state: SCCState,
+             marks: Optional[Dict[int, int]] = None):
+    mark_to_vertex = ({j: i for i, j in marks.items()}
+                      if marks is not None else None)
+    for i in range(graph.max_vertex, 0, -1):
+        if i not in state.explored:
+            state.current_leader = i
+            dfs(i, graph, state, marks, mark_to_vertex)
+    return marks
 
 
-class Graph:
-    def __init__(self,
-                 input_file: Optional[Path] = None,
-                 edges: Optional[Sequence[Edge]] = None,
-                 node_lists: Optional[Dict[int, Sequence[int]]] = None):
-        if input_file is not None and edges is not None:
-            raise ValueError("either `input_file` or `edges` can be specified.")
+def dfs(vertex_mark: int,
+        graph: Graph,
+        state: SCCState,
+        vertex_to_mark: Optional[Dict[int, int]] = None,
+        mark_to_vertex: Optional[Dict[int, int]] = None):
+    if vertex_to_mark is None:
+        vertex_to_mark = {}
+    if mark_to_vertex is None:
+        mark_to_vertex = {}
+    to_explore = deque([vertex_mark])
 
-        if node_lists is not None:
-            self.vertex_edges = node_lists
+    while len(to_explore) > 0:
+        vertex_mark = to_explore[0]
+        actual_vertex = mark_to_vertex.get(vertex_mark, vertex_mark)
+
+        if vertex_mark in state.explored:
+            state.leaders[vertex_mark] = state.current_leader
+            to_explore.popleft()
+            state.time += 1
+            state.marks[vertex_mark] = state.time
 
         else:
-            if input_file is not None:
-                edges = self.read_edges(input_file)
+            for actual_end in graph.adj_list.get(actual_vertex, []):
+                end_mark = vertex_to_mark.get(actual_end, actual_end)
+                if end_mark not in state.explored:
+                    to_explore.appendleft(end_mark)
 
-            self.vertex_edges = defaultdict(list)
-            for edge in edges:
-                self.vertex_edges[edge.start].append(edge.end)
-
-        self.n = max(self.vertex_edges.keys())
-
-    @staticmethod
-    def read_edges(input_file: Path) -> Sequence[Edge]:
-        with input_file.open("r") as input_file:
-            lines = [map(int, line.split(" "))
-                     for line in input_file.readlines()]
-            return [Edge(*line) for line in lines]
-
-    def relabel_vertex(self, new_labels: Sequence[int]):
-        self.vertex_edges = {new_labels[v]: [new_labels[w] for w in values]
-                             for v, values in self.vertex_edges.items()}
-
-    def revert_edges(self) -> "Graph":
-        new_edges = defaultdict(list)
-        for v, ends in self.vertex_edges.items():
-            for w in ends:
-                new_edges[w].append(v)
-        return Graph(node_lists=new_edges)
+            state.explored.add(vertex_mark)
 
 
-class DFS:
-    def __init__(self, n: int):
-        self.explored = [False for i in range(n)]
-        self.leader = [None for i in range(n)]
-        self.finish_time = [0 for i in range(n)]
-        self.time = 0
-        self.current_leader = None
-        self.n = n - 1
-
-    def dfs(self, graph: Graph, node: int):
-        self.explored[node] = True
-        self.leader[node] = self.current_leader
-        print(f"Internal dfs exploring {node}")
-        for end in graph.vertex_edges[node]:
-            if not self.explored[end]:
-                self.dfs(graph, end)
-        self.time += 1
-        self.finish_time[node] = self.time
-
-    def dfs_loop(self, graph):
-        node = self.n
-        while node >= 0:
-            if not self.explored[node]:
-                self.current_leader = node
-                self.dfs(graph, node)
+def compute_scc(graph: Graph) -> Dict[int, int]:
+    reversed_state = SCCState()
+    dfs_loop(graph.reverse(), reversed_state)
+    state = SCCState()
+    dfs_loop(graph, state, marks=reversed_state.marks)
+    return state.leaders
 
 
-def compute_scc(graph: Graph):
-    graph_rev = graph.revert_edges()
-    dfs = DFS(graph_rev.n)
-    print(graph_rev.vertex_edges)
-    # dfs.dfs_loop(graph_rev)
-    # print(dfs.leader)
-    # print(dfs.explored)
-    # print(dfs.finish_time)
-    # graph.relabel_vertex(dfs.finish_time)
-    # dfs = DFS(graph.n)
-    # dfs.dfs_loop(graph)
-    # print(dfs.leader)
-
-
-
-
+def compute_sizes(leaders: Dict[int, int]):
+    counter = Counter(leaders.values())
+    # from collections import defaultdict
+    # results = defaultdict(set)
+    # for v, s in leaders.items():
+    #     results[s].add(v)
+    # print(results)
+    # for v, ss in sorted(results.items(), key=lambda x: len(x[1]), reverse=True):
+    #     print(v, len(ss))
+    return sorted(counter.values(), reverse=True)
 
