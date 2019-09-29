@@ -24,9 +24,20 @@ def test_graph__init__(graph_adj_list):
     """Test graph initialisation."""
     graph = Graph(adj_list=graph_adj_list)
     assert graph.adj_list == graph_adj_list
+    assert graph.max_vertex == 3
+
+
+def test_graph_reverse(graph_adj_list):
+    """Test reverse of graph."""
+    graph = Graph(adj_list=graph_adj_list)
+    reversed_graph = graph.reverse()
+    assert reversed_graph.adj_list == {0: {2}, 1: {0, 2, 3}, 2: {0, 1},
+                                       3: {0, 1}}
+    assert reversed_graph.max_vertex == 3
 
 
 def test_graph_from_file(graph_file, graph_adj_list):
     """Test creation of graph from a file."""
     graph = Graph.from_file(graph_file)
     assert graph.adj_list == graph_adj_list
+    assert graph.max_vertex == 3
