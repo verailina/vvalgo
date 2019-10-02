@@ -37,7 +37,7 @@ class WeightedGraph:
         self.max_vertex = -1
         for v, ends in self.adj_list.items():
             self.max_vertex = max([self.max_vertex, v] +
-                                  [x[1] for x in ends])
+                                  [x[0] for x in ends])
 
     @staticmethod
     def from_file(input_path: Path, sep: str = " ") -> "WeightedGraph":
@@ -45,7 +45,7 @@ class WeightedGraph:
         with input_path.open("r") as input_file:
             for line in input_file.readlines():
                 items = line.strip().split(sep)
-                source = int(line[0])
+                source = int(items[0])
                 adj_list[source] = [tuple(map(int, edge.strip().split(",")))
                                     for edge in items[1:]]
 
