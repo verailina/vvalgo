@@ -1,5 +1,7 @@
 """This module contains function for finding n-order statistics in an array."""
+from typing import Sequence
 import heapq
+from vvalgo.quick_sort import partition
 
 
 class InteractiveMedian:
@@ -53,3 +55,29 @@ class InteractiveMedian:
 
         self.medan_sum = (self.medan_sum + median) % self.mod
         return median
+
+
+def find_n_statistics(numbers: Sequence[int], n: int) -> int:
+    """Find an element that takes a position n in a sorted array `numbers`.
+
+    Args:
+        numbers (Sequence[int]): Input array.
+        n (int): Position of element to find in sorted array.
+
+    Returns:
+        int: Element that takes a position n in the sorted array `numbers`.
+    """
+    if len(numbers) < n:
+        raise ValueError(f"invalid n: {n}, should be in range: "
+                         f"[{0}, {len(numbers)}]")
+    if len(numbers) == 1:
+        return numbers[0]
+
+    pivot_pos = partition(numbers)
+    if pivot_pos == n - 1:
+        return numbers[pivot_pos]
+
+    if pivot_pos < n - 1:
+        return find_n_statistics(numbers[pivot_pos + 1:], n - pivot_pos - 1)
+
+    return find_n_statistics(numbers[:pivot_pos], n)
