@@ -1,4 +1,6 @@
-from vvalgo.n_statistics import InteractiveMedian
+import pytest
+
+from vvalgo.n_statistics import InteractiveMedian, find_n_statistics
 
 
 def test_interactive_median():
@@ -30,3 +32,23 @@ def test_big_sample(resources_path):
             solver.insert(int(line))
 
     print(solver.medan_sum)
+
+
+def test_find_n_statistics():
+    """Test the function that finds an n-th statistics of an input array."""
+    with pytest.raises(ValueError, match="invalid n"):
+        find_n_statistics([], 1)
+
+    assert find_n_statistics([1], 1) == 1
+
+    assert find_n_statistics([1, 2], 1) == 1
+    assert find_n_statistics([2, 1], 2) == 2
+
+    assert find_n_statistics([2, 1, 3], 1) == 1
+    assert find_n_statistics([2, 1, 3], 2) == 2
+    assert find_n_statistics([2, 1, 3], 3) == 3
+
+    assert find_n_statistics([2, 3, 1, 3], 1) == 1
+    assert find_n_statistics([2, 3, 1, 3], 2) == 2
+    assert find_n_statistics([2, 3, 1, 3], 3) == 3
+    assert find_n_statistics([2, 3, 1, 3], 4) == 3
